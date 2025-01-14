@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_joystick/flutter_joystick.dart';
+import './bluetooth/bluetooth_class.dart';
 
 class ControlPage extends StatefulWidget {
+  final BluetoothConnector bluetooth;
+
+  // Constructor to accept the Bluetooth instance.
+  ControlPage({required this.bluetooth});
+
   @override
   _ControlPageState createState() => _ControlPageState();
 }
-
 class _ControlPageState extends State<ControlPage> {
   bool showCamera = true;
-  Offset leftJoystickValue = Offset.zero;
-  Offset rightJoystickValue = Offset.zero;
+  double leftJoystickValue = 0.0;
+  double rightJoystickValue = 0.0;
 
   @override
   void initState() {
@@ -28,7 +33,10 @@ class _ControlPageState extends State<ControlPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: Text('Steuerung'), backgroundColor: Colors.black,),
+      appBar: AppBar(
+        title: Text('Steuerung'),
+        backgroundColor: Colors.black,
+      ),
       body: Stack(
         children: [
           // Kamera-/Abstandssensoransicht in der Mitte, etwas nach oben verschoben
@@ -58,11 +66,10 @@ class _ControlPageState extends State<ControlPage> {
             child: Joystick(
               listener: (StickDragDetails details) {
                 setState(() {
-                  //leftJoystickValue = details.offset;
+                  widget.bluetooth.sendBlMessage("Right Joystick: ${details.y}");
                 });
               },
-              mode: JoystickMode.all,
-              //size: 80, // Verkleinerte Joystick-Größe
+              mode: JoystickMode.vertical,
             ),
           ),
           // Rechter Joystick in der rechten unteren Ecke
@@ -72,29 +79,32 @@ class _ControlPageState extends State<ControlPage> {
             child: Joystick(
               listener: (StickDragDetails details) {
                 setState(() {
-                  //rightJoystickValue = details.offset;
+                  widget.bluetooth.sendBlMessage("Right Joystick: ${details.x}");
                 });
               },
-              mode: JoystickMode.all,
-              //size: 80, // Verkleinerte Joystick-Größe
+              mode: JoystickMode.horizontal,
             ),
           ),
           // Toggle Button zentriert unten
-
-          Expanded(
-            child: Align(
-              alignment: FractionalOffset.bottomCenter,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
               child: MaterialButton(
                 onPressed: () {
                   setState(() {
                     showCamera = !showCamera;
                   });
+                  widget.bluetooth.sendBlMessage("Toggle Ansicht: $showCamera");
                 },
-                child: Text('Toggle Ansicht'),
+                color: Colors.white,
+                child: Text(
+                  'Toggle Ansicht',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ),
           ),
-
         ],
       ),
     );

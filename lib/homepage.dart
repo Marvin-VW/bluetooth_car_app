@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildNavigationButton(context, 'Steuerung', ControlPage()),
+                  _buildNavigationButton(context, 'Steuerung', ControlPage(bluetooth: bl!,)),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
                   _buildNavigationButton(context, '3D Modell', ModelPage()),
                 ],
@@ -170,7 +170,6 @@ Future handleConnectRequest() async {
       }
     });
   }
-
 
   AlertDialog requestBluetoothDialog(BuildContext context) {
     return AlertDialog(
@@ -543,25 +542,34 @@ void connectToBlDevice() async {
     );
   }
 
-  // Navigation Button
-  Widget _buildNavigationButton(BuildContext context, String label, Widget? page) {
+  _buildNavigationButton(BuildContext context, String label, Widget page) {
     return ElevatedButton(
-      onPressed: page != null
-          ? () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => page),
-        );
-      }
-          : null,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[850],
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      child: Text(label, style: TextStyle(fontSize: 18, color: Colors.white)),
+      onPressed: () {
+        if (label == 'Steuerung') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ControlPage(bluetooth: bl!),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        }
+      },
+      child: Text(
+        label,
+        style: TextStyle(color: Colors.white, fontSize: 18),
+      ),
     );
   }
+
 
 
 
