@@ -4,14 +4,14 @@ import 'control_page.dart';
 import 'model_page.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(BluetoothCarControl());
 }
 
-class MyApp extends StatelessWidget {
+class BluetoothCarControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Retro Car Control',
+      title: 'Nissan Car Control',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,

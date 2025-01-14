@@ -19,6 +19,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<void> initializeApp() async {
+    // Simulate a loading process (e.g., loading assets, fetching data)
+    await Future.delayed(Duration(seconds: 3)); // Replace with real initialization logic
+  }
   final String carImage = 'assets/car_image2.png';
   bool underglow = false;
   BluetoothConnector? bl;
