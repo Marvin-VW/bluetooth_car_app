@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
     // Simulate a loading process (e.g., loading assets, fetching data)
     await Future.delayed(Duration(seconds: 3)); // Replace with real initialization logic
   }
+
   final String carImage = 'assets/car_image2.png';
   bool underglow = false;
   BluetoothConnector? bl;
@@ -144,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   _buildNavigationButton(context, 'Steuerung', ControlPage(bluetooth: bl!,)),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  _buildNavigationButton(context, '3D Modell', ModelPage()),
+                  _buildNavigationButton(context, '3D Modell', ModelPage(title: '3D Viewer')),
                 ],
               ),
               Text(
@@ -157,7 +158,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 
 void connectToBlDevice() async {
   if (await Permission.bluetoothConnect.request().isGranted &&
@@ -179,45 +179,6 @@ void connectToBlDevice() async {
       }
     }
   }
-
-  Widget blMessageButton(
-      {required String message, required String buttonText}) {
-    // Bluetooth Connection is only available on Android
-    if (!Platform.isAndroid) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Bluetooth is not available on this device',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              fontSize: 24,
-            ),
-          ),
-        ),
-      );
-    }
-    return ElevatedButton(
-      onPressed: () {
-        if (bl != null) {
-          bl!.sendBlMessage(message);
-        }
-      },
-      child: Text(
-        buttonText,
-        style: const TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 24,
-        ),
-      ),
-    );
-  }
-
-
 
   // Battery Info Box
   Widget _buildBatteryInfoBox(BuildContext context) {

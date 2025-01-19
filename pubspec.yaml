@@ -15,6 +15,7 @@ dependencies:
   flutter_bluetooth_serial: ^0.4.0
   permission_handler: ^11.3.1
   flutter_launcher_icons: ^0.14.2
+  o3d: ^3.1.0
 
 dev_dependencies:
   flutter_test:

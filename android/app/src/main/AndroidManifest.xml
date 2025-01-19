@@ -11,9 +11,12 @@
     <uses-feature android:name="android.permission.BLUETOOTH_CONNECT" android:required="true"/>
 
     <application
+        android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
         android:label="Nissan"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,67 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:o3d/o3d.dart';
 
-class ModelPage extends StatelessWidget {
+class ModelPage extends StatefulWidget {
+  final String title;
+
+  const ModelPage({Key? key, required this.title}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<ModelPage> {
+  // Controller for the 3D animation
+  final O3DController controller = O3DController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('3D Modell')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Scheinwerfer an/aus'),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Kamera Ansicht'),
-                ),
-              ],
-            ),
-            // 3D Modell einfügen
-            Container(
-              width: 300,
-              height: 300,
-              child: ModelViewer(
-                src: 'assets/models/car_model.glb', // Pfad zu deinem Modell
-                ar: true,
-                autoRotate: true,
-                cameraControls: true,
-                backgroundColor: Colors.grey,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Abstand links 1'),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Abstand links 2'),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Abstand rechts 1'),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Abstand rechts 2'),
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Rückleuchten an/aus'),
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () => controller.cameraOrbit(20, 20, 5),
+            icon: const Icon(Icons.change_circle),
+          ),
+          IconButton(
+            onPressed: () => controller.cameraTarget(1.2, 1, 4),
+            icon: const Icon(Icons.change_circle_outlined),
+          ),
+        ],
+      ),
+      body: O3D.asset(
+        src: 'assets/models/car_model.glb',
+        controller: controller,
       ),
     );
   }
