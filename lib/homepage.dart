@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
                     Positioned(
                       top: 230,
                       child: _buildConnection(context, _isConnected, _isConnecting, _device_selected_by_user,  () async {
-                        await handleConnectRequest();
+                        connectToBlDevice();
                       }),
                     ),
                   ],
@@ -159,101 +159,24 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-Future handleConnectRequest() async {
-    await Permission.bluetoothScan.status.then((value) async {
-      debugPrint("-------!${value.isGranted}!-------");
-      if (value.isGranted) {
-        debugPrint('Bluetooth permission granted');
-        connectToBlDevice();
-      } else {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return requestBluetoothDialog(context);
-            });
-      }
-    });
-  }
-
-  AlertDialog requestBluetoothDialog(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Bluetooth Permission'),
-      content: const Text(
-        'This app requires bluetooth permission to connect to the device, please allow location and nearby devices permission to continue.',
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          fontSize: 24,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text(
-            'Cancel',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              fontSize: 24,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () async {
-            await openAppSettings().then((value) async {
-              Navigator.of(context).pop();
-              await Permission.bluetoothScan.status.then((value) {
-                if (value.isGranted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text(
-                        'Bluetooth permission granted, please try again.',
-                        style: TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 24,
-                        ),
-                      )));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text(
-                        'Bluetooth permission is required to connect to the device.',
-                        style: TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 24,
-                        ),
-                      )));
-                }
-              });
-            });
-          },
-          child: const Text(
-            'Open Settings',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              fontSize: 24,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-
-
 void connectToBlDevice() async {
-    final BluetoothDevice? device = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) {
-          return const SelectBondedDevicePage(checkAvailability: false);
-        },
-      ),
-    );
+  if (await Permission.bluetoothConnect.request().isGranted &&
+      await Permission.locationWhenInUse.request().isGranted) {
+      final BluetoothDevice? device = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return const SelectBondedDevicePage(checkAvailability: false);
+          },
+        ),
+      );
 
-    if (device == null) {
-      debugPrint('No device selected');
-      return;
-    } else {
-      _device_selected_by_user = true;
-      bl!.connectToDevice(device);
+      if (device == null) {
+        debugPrint('No device selected');
+        return;
+      } else {
+        _device_selected_by_user = true;
+        bl!.connectToDevice(device);
+      }
     }
   }
 
