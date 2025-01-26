@@ -10,12 +10,16 @@ import 'package:open_settings_plus/open_settings_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import './bluetooth/select_bonded_device_page.dart';
 import './bluetooth/bluetooth_class.dart';
+import 'package:provider/provider.dart';
+import 'distance_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+
   @override
   State<HomePage> createState() => _HomePageState();
+
 }
 
 class _HomePageState extends State<HomePage> {
@@ -31,26 +35,31 @@ class _HomePageState extends State<HomePage> {
   bool _isConnected = false;
   bool _isConnecting = false;
   bool _device_selected_by_user = false;
-  String _receivedMessage = '';
+  int leftDistance = 100;
+  int rightDistance = 100;
+  int frontDistance = 100;
+
 
   @override
   void initState() {
     super.initState();
+
+    final distanceProvider = Provider.of<DistanceProvider>(context, listen: false);
 
     // Initialize the BluetoothConnector
     if (Platform.isAndroid) {
       bl = BluetoothConnector();
     }
 
-    // Start listening for Bluetooth messages
-    bl?.receiveBlMessage();
-
     // Start a timer to check connection status every second
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (bl != null) {
         final connected = bl!.isConnected;
         final is_connecting = bl!.isConnected;
-        final receivedMessage = bl!.receivedMessage;
+        final _leftDistance = bl!.value1;
+        final _rightDistance = bl!.value2;
+        final _frontDistance = bl!.value3
+        ;
         if (connected != _isConnected) {
           setState(() {
             _isConnected = connected;
@@ -61,11 +70,22 @@ class _HomePageState extends State<HomePage> {
             _isConnecting = is_connecting;
           });
         }
-        if (receivedMessage != _receivedMessage) {
+        if (_leftDistance != leftDistance) {
           setState(() {
-            _receivedMessage = receivedMessage;
+            leftDistance = _leftDistance;
           });
         }
+        if (_rightDistance != rightDistance) {
+          setState(() {
+            rightDistance = _rightDistance;
+          });
+        }
+        if (_frontDistance != frontDistance) {
+          setState(() {
+            frontDistance = _frontDistance;
+          });
+        }
+        distanceProvider.updateDistances(leftDistance, rightDistance, frontDistance);
       }
     });
   }
@@ -135,7 +155,7 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildSensorDistances(context, backendService.distances),
+                  _buildSensorDistances(context, [leftDistance, rightDistance,frontDistance, 100]),
                 ],
               ),
               SizedBox(height: 20),
@@ -145,12 +165,8 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   _buildNavigationButton(context, 'Steuerung', ControlPage(bluetooth: bl!,)),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  _buildNavigationButton(context, '3D Modell', ModelPage(title: '3D Viewer')),
+                  _buildNavigationButton(context, 'Parking', CarPage()),
                 ],
-              ),
-              Text(
-                _receivedMessage,
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -386,7 +402,7 @@ void connectToBlDevice() async {
   Widget _buildSensorDistances(BuildContext context, List<int> distances) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey[850],
         borderRadius: BorderRadius.circular(10),
@@ -410,7 +426,7 @@ void connectToBlDevice() async {
     return Container(
       width: 150,
       padding: EdgeInsets.all(10),
-      margin: EdgeInsets.only(bottom: 10),
+      margin: EdgeInsets.only(bottom: 5, top: 5),
       decoration: BoxDecoration(
         color: Colors.grey[700],
         borderRadius: BorderRadius.circular(10),
@@ -457,8 +473,4 @@ void connectToBlDevice() async {
       ),
     );
   }
-
-
-
-
 }

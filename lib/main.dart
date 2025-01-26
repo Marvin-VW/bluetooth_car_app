@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'homepage.dart';
 import 'control_page.dart';
 import 'model_page.dart';
+import 'package:provider/provider.dart';
+import 'distance_provider.dart';
 
 void main() {
-  runApp(BluetoothCarControl());
+  runApp(
+      ChangeNotifierProvider(
+        create: (context) => DistanceProvider(),
+        child: BluetoothCarControl(),
+      ),
+  );
 }
 
 class BluetoothCarControl extends StatelessWidget {
