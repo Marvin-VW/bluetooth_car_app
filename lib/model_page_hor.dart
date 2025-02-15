@@ -10,33 +10,7 @@ class CarPage extends StatefulWidget {
 }
 
 class _CarPageState extends State<CarPage> {
-  String selectedColor = "blue"; // Default color
-  final List<String> carColors = [
-    "black",
-    "blue",
-    "dark_blue",
-    "dark_blue_grey",
-    "dark_blue_metallic",
-    "dark_dark_green",
-    "dark_green_metallic",
-    "dark_grey_green",
-    "dark_purple",
-    "dark_red",
-    "gold_silver",
-    "green",
-    "light_blue",
-    "light_blue_white",
-    "light_light_orange",
-    "light_orange",
-    "light_purple",
-    "light_red",
-    "orange",
-    "purple",
-    "purple_blue",
-    "red",
-    "white",
-    "yellow"
-  ];
+  String selectedColor = "blue";
 
   // Define initial sensor visibility
   List<bool> leftSensorVisibility = [false, false, false];
@@ -112,9 +86,7 @@ class _CarPageState extends State<CarPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Parking"),
-      ),
+      backgroundColor: Colors.transparent,
       body: Consumer<DistanceProvider>(
         builder: (context, distanceProvider, child) {
           // Update visibility based on distances from the DistanceProvider
@@ -132,18 +104,15 @@ class _CarPageState extends State<CarPage> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    _showColorPicker(context);
-                  },
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
                       // Car shadow
                       Positioned(
-                        top: MediaQuery.of(context).size.height * 0.13,
+                        top: MediaQuery.of(context).size.height * 0.28,
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.8,
-                          height: MediaQuery.of(context).size.height * 0.4,
+                          height: MediaQuery.of(context).size.height * 0.48,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.black.withOpacity(0.1),
@@ -160,22 +129,21 @@ class _CarPageState extends State<CarPage> {
                       ),
                       // Car image
                       Positioned(
-                        top: MediaQuery.of(context).size.height * 0.1,
-                        left: MediaQuery.of(context).size.width * 0.01,
+                        left: MediaQuery.of(context).size.width * 0.0475,
                         child: Transform.rotate(
                           angle: 90 * 3.14159 / 180,
                           child: Image.asset(
                             "assets/top_down/$selectedColor.png",
-                            width: MediaQuery.of(context).size.width * 1,
-                            height: MediaQuery.of(context).size.height * 0.5,
+                            width: MediaQuery.of(context).size.height * 0.65,
+                            height: MediaQuery.of(context).size.width * 0.5,
                             fit: BoxFit.contain,
                           ),
                         ),
                       ),
                       // Left sensor stack
                       Positioned(
-                        top: MediaQuery.of(context).size.width * 0.7,
-                        left: MediaQuery.of(context).size.width * 0.055,
+                        top: MediaQuery.of(context).size.height * 0.42,
+                        left: MediaQuery.of(context).size.height * 0.11,
                         child: Stack(
                           children: List.generate(
                             leftSensorVisibility.length,
@@ -185,8 +153,8 @@ class _CarPageState extends State<CarPage> {
                                 angle: 270 * pi / 180, // Rotate each sensor individually
                                 child: Image.asset(
                                   "assets/sensors/left/left_sensor_$index.png",
-                                  width: 120,
-                                  height: 120,
+                                  width: 80,
+                                  height: 80,
                                 ),
                               ),
                             ),
@@ -195,8 +163,8 @@ class _CarPageState extends State<CarPage> {
                       ),
                       // Right sensor stack
                       Positioned(
-                        top: MediaQuery.of(context).size.width * 0.7,
-                        right: MediaQuery.of(context).size.width * 0.059,
+                        top: MediaQuery.of(context).size.height * 0.42,
+                        right: MediaQuery.of(context).size.height * 0.11,
                         child: Stack(
                           children: List.generate(
                             rightSensorVisibility.length,
@@ -206,8 +174,8 @@ class _CarPageState extends State<CarPage> {
                                 angle: 90 * pi / 180, // Rotate each sensor individually
                                 child: Image.asset(
                                   "assets/sensors/right/right_sensor_$index.png",
-                                  width: 120,
-                                  height: 120,
+                                  width: 80,
+                                  height: 80,
                                 ),
                               ),
                             ),
@@ -216,7 +184,7 @@ class _CarPageState extends State<CarPage> {
                       ),
                       // Front sensor stack
                       Positioned(
-                        top: MediaQuery.of(context).size.height * 0.028,
+                        top: MediaQuery.of(context).size.height * 0.04,
                         child: Stack(
                           children: List.generate(
                             frontSensorVisibility.length,
@@ -224,19 +192,11 @@ class _CarPageState extends State<CarPage> {
                               visible: frontSensorVisibility[index],
                               child: Image.asset(
                                 "assets/sensors/front/front_sensor_$index.png",
-                                width: 100,
-                                height: 100,
+                                width: 65,
+                                height: 65,
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      // Display distances from the DistanceProvider
-                      Positioned(
-                        top: MediaQuery.of(context).size.height * 0.64,
-                        child:
-                        _buildSensorDistances(context,
-                            [distanceProvider.leftDistance, distanceProvider.rightDistance,distanceProvider.frontDistance, 100]
                         ),
                       ),
                     ],
@@ -246,103 +206,6 @@ class _CarPageState extends State<CarPage> {
             ],
           );
         },
-      ),
-    );
-  }
-
-  void _showColorPicker(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Choose a Color"),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: GridView.builder(
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: carColors.length,
-              itemBuilder: (context, index) {
-                final colorName = carColors[index];
-                return GestureDetector(
-                  onTap: () async {
-                    setState(() {
-                      selectedColor = colorName;
-                    });
-
-                    // Save the color
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.setString('selectedColor', colorName);
-
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    child: Transform.rotate(
-                      angle: 90 * 3.14159 / 180, // 90 degrees in radians
-                      child: Image.asset(
-                        "assets/top_down/$colorName.png",
-                        scale: 3,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-
-  Widget _buildSensorDistances(BuildContext context, List<int> distances) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          for (int i = 0; i < distances.length; i += 2)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSensorBox(distances[i]),
-                if (i + 1 < distances.length) _buildSensorBox(distances[i + 1]),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSensorBox(int distance) {
-    return Container(
-      width: 150,
-      padding: EdgeInsets.all(10),
-      margin: EdgeInsets.only(bottom: 5, top: 5),
-      decoration: BoxDecoration(
-        color: Colors.grey[700],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$distance cm',
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.white,
-            ),
-          ),
-        ],
       ),
     );
   }

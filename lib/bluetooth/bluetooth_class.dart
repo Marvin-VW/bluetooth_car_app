@@ -14,6 +14,9 @@ class BluetoothConnector {
   int value1 = 100;
   int value2 = 100;
   int value3 = 100;
+  double value4 = 0.0;
+  double value5 = 0.0;
+  double value6 = 0.0;
 
   /// Connect to a Bluetooth device (only if not already connected)
   void connectToDevice(BluetoothDevice device) async {
@@ -77,16 +80,20 @@ class BluetoothConnector {
         debugPrint('Received: $message');
 
         // Split the message by commas and parse each value into an integer
-        List<int> parsedValues = message
+        List<double> parsedValues = message
             .replaceAll(' ', '') // Remove spaces
             .split(',') // Split by commas
-            .map((value) => int.tryParse(value) ?? 0) // Convert to integer, default to 0 on error
+            .map((value) => double.tryParse(value) ?? 0.0) // Convert to integer, default to 0 on error
             .toList();
 
         if (parsedValues.length >= 3) {
-          value1 = parsedValues[0];
-          value2 = parsedValues[1];
-          value3 = parsedValues[2];
+          value1 = (parsedValues[0]).toInt();
+          value2 = (parsedValues[1]).toInt();
+          value3 = (parsedValues[2]).toInt();
+          value4 = parsedValues[3];
+          value5 = parsedValues[4];
+          value6 = parsedValues[5];
+
         }
 
         // Store the raw received message if needed

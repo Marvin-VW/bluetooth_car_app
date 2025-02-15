@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'control_page.dart';
 import 'model_page.dart';
-import 'backend_service.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:open_settings_plus/open_settings_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import './bluetooth/select_bonded_device_page.dart';
 import './bluetooth/bluetooth_class.dart';
@@ -38,7 +35,9 @@ class _HomePageState extends State<HomePage> {
   int leftDistance = 100;
   int rightDistance = 100;
   int frontDistance = 100;
-
+  double busVoltage = 0.0;
+  double shuntVoltage = 0.0;
+  double current = 0.0;
 
   @override
   void initState() {
@@ -58,8 +57,11 @@ class _HomePageState extends State<HomePage> {
         final is_connecting = bl!.isConnected;
         final _leftDistance = bl!.value1;
         final _rightDistance = bl!.value2;
-        final _frontDistance = bl!.value3
-        ;
+        final _frontDistance = bl!.value3;
+        final _busVoltage = bl!.value4;
+        final _shuntVoltage = bl!.value5;
+        final _current = bl!.value6;
+
         if (connected != _isConnected) {
           setState(() {
             _isConnected = connected;
@@ -85,7 +87,23 @@ class _HomePageState extends State<HomePage> {
             frontDistance = _frontDistance;
           });
         }
-        distanceProvider.updateDistances(leftDistance, rightDistance, frontDistance);
+        if (_busVoltage != busVoltage) {
+          setState(() {
+            busVoltage = _busVoltage;
+          });
+        }
+        if (_shuntVoltage != shuntVoltage) {
+          setState(() {
+            shuntVoltage = _shuntVoltage;
+          });
+        }
+        if (_current != current) {
+          setState(() {
+            current = _current;
+          });
+        }
+        distanceProvider.updateDistances(leftDistance, rightDistance, frontDistance,
+          busVoltage, shuntVoltage, current);
       }
     });
   }
@@ -138,9 +156,9 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildBatteryInfoBox(context),
+                  _buildBatteryInfoBox(context, busVoltage, current),
                   SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  _buildVoltageInfoBox(context),
+                  _buildVoltageInfoBox(context, busVoltage, current),
                 ],
               ),
               SizedBox(height: 20),
@@ -160,13 +178,15 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(height: 20),
               // Navigation Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildNavigationButton(context, 'Steuerung', ControlPage(bluetooth: bl!,)),
-                  SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-                  _buildNavigationButton(context, 'Parking', CarPage()),
-                ],
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildNavigationButton(context, 'Control', ControlPage(bluetooth: bl!,)),
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.05),
+                    _buildNavigationButton(context, 'Parking', CarPage()),
+                  ],
+                ),
               ),
             ],
           ),
@@ -197,7 +217,7 @@ void connectToBlDevice() async {
   }
 
   // Battery Info Box
-  Widget _buildBatteryInfoBox(BuildContext context) {
+  Widget _buildBatteryInfoBox(BuildContext context, double voltage, double current) {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: MediaQuery.of(context).size.width * 0.425,
@@ -218,7 +238,7 @@ void connectToBlDevice() async {
             ),
             SizedBox(height: 8),
             Text(
-              '${backendService.distances[0]} min Remaining', // Replace with actual remaining time if available
+              '${(voltage * current / 5).toInt().clamp(0, double.infinity)} min Remaining', //Wh/W
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
             SizedBox(height: 10),
@@ -236,8 +256,8 @@ void connectToBlDevice() async {
                       ),
                     ),
                     Text(
-                      '${backendService.distances[0]}%', // Battery percentage
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      '${(((voltage - 6) / (7.4 - 6))*100).toInt().clamp(0, double.infinity)}%',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,),
                     ),
                   ],
                 ),
@@ -246,11 +266,11 @@ void connectToBlDevice() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '7.3 Wh', // Placeholder for battery kWh
+                      '${(voltage * current).toInt().clamp(0, double.infinity)} Wh',
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '${backendService.distances[1]} Km', // Distance
+                      '15 Km', // Distance
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                   ],
@@ -264,7 +284,7 @@ void connectToBlDevice() async {
   }
 
   // Voltage Info Box
-  Widget _buildVoltageInfoBox(BuildContext context) {
+  Widget _buildVoltageInfoBox(BuildContext context, double voltage, double current) {
     return ConstrainedBox(
       constraints: BoxConstraints(
         minWidth: MediaQuery.of(context).size.width * 0.425,
@@ -289,7 +309,7 @@ void connectToBlDevice() async {
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '5V',
+              '$voltage',
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
             SizedBox(height: 8),
@@ -298,7 +318,7 @@ void connectToBlDevice() async {
               style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '1.3 A',
+              '$current',
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ],
@@ -451,9 +471,10 @@ void connectToBlDevice() async {
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        minimumSize: Size(150, 50),
       ),
       onPressed: () {
-        if (label == 'Steuerung') {
+        if (label == 'Control') {
           Navigator.push(
             context,
             MaterialPageRoute(
