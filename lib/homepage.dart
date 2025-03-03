@@ -238,8 +238,8 @@ void connectToBlDevice() async {
             ),
             SizedBox(height: 8),
             Text(
-              '${(voltage * current / 5).toInt().clamp(0, double.infinity)} min Remaining', //Wh/W
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+                '${voltage != 0 ? (3.45 * current).toInt().clamp(0, double.infinity) : 0} min Remaining',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
             SizedBox(height: 10),
             Row(
@@ -266,7 +266,7 @@ void connectToBlDevice() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${(voltage * current).toInt().clamp(0, double.infinity)} Wh',
+                      '${(voltage * 3.45).toInt().clamp(0, double.infinity)} Wh',
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Text(

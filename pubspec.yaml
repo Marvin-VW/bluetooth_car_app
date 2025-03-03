@@ -17,6 +17,7 @@ dependencies:
   provider: ^6.0.5
   shared_preferences: ^2.4.0
   flutter_mjpeg: ^2.0.4
+  lucide_icons: ^0.257.0
 
 dev_dependencies:
   flutter_test:
